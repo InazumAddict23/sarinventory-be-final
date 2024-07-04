@@ -1,7 +1,10 @@
 package com.csthesis.sarinventory_be_final.services;
 
+import com.csthesis.sarinventory_be_final.entities.Item;
 import com.csthesis.sarinventory_be_final.entities.Supplier;
+import com.csthesis.sarinventory_be_final.entities.User;
 import com.csthesis.sarinventory_be_final.repositories.SupplierRepository;
+import com.csthesis.sarinventory_be_final.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.Filter;
@@ -9,6 +12,7 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +27,9 @@ public class SupplierService {
     private final SupplierRepository supplierRepo;
 
     @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
     private final EntityManager entityManager;
 
     public SupplierService (SupplierRepository supplierRepo, EntityManager entityManager) {
@@ -30,7 +37,9 @@ public class SupplierService {
         this.entityManager = entityManager;
     }
 
-    public Supplier saveSupplier(Supplier supplier) {
+    public Supplier saveSupplier(Supplier supplier, Authentication auth) {
+
+        supplier.setUser((User) userRepo.findByUsername(auth.getName()).get());
         System.out.println("Supplier Added: " + supplier.getName() + " | " + supplier.getPhoneNumber());
 //        log.info("Supplier Added: " + supplier.getName() + " | " + supplier.getPhoneNumber());
 
@@ -39,6 +48,11 @@ public class SupplierService {
 
     public List<Supplier> findAll() {
         return supplierRepo.findAll();
+    }
+
+    public List<Supplier> findAllById(Authentication auth) {
+//        log.info("Item list booted up");
+        return supplierRepo.findAllById(userRepo.findByUsername(auth.getName()).get().getId());
     }
 
     public List<Supplier> findAllFiltered(boolean isDeleted) {

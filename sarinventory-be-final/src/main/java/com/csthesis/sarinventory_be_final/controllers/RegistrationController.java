@@ -20,7 +20,7 @@ public class RegistrationController {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @PostMapping("/register")
+//    @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         // Check if username already exists
         if (userRepository.findByUsername(user.getUsername()) != null) {

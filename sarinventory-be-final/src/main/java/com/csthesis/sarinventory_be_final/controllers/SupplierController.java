@@ -5,20 +5,21 @@ import com.csthesis.sarinventory_be_final.services.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/suppliers")
+@RequestMapping("/user/api/suppliers")
 public class SupplierController {
 
     @Autowired
     public SupplierService supplierService;
 
     @PostMapping
-    public Supplier createSupplier(@RequestBody Supplier supplier){
-        return supplierService.saveSupplier(supplier);
+    public Supplier createSupplier(@RequestBody Supplier supplier, Authentication auth){
+        return supplierService.saveSupplier(supplier, auth);
     }
 
     @GetMapping("/list")

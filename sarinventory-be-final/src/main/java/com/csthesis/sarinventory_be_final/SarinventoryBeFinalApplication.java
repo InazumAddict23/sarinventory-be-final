@@ -18,12 +18,11 @@ import java.util.Set;
 
 @SpringBootApplication
 public class SarinventoryBeFinalApplication {
-
-	private static final Logger logger = LoggerFactory.getLogger(SarinventoryBeFinalApplication.class);
+//	private static final Logger logger = LoggerFactory.getLogger(SarinventoryBeFinalApplication.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(SarinventoryBeFinalApplication.class, args);
-		logger.info("Backend application ran successfully");
+//		logger.info("Backend application ran successfully");
 	}
 
 	@Bean
@@ -37,7 +36,7 @@ public class SarinventoryBeFinalApplication {
 			Set<Role> roles = new HashSet<>();
 			roles.add(adminRole);
 
-			User admin = new User(1L, "FrancisBR87", roles, passwordEncoder.encode("Password1"));
+			User admin = new User(1L, "FrancisBR87", "09067857220", "Francis Lance", "David","N/A", roles, passwordEncoder.encode("Password1"));
 
 			userRepository.save(admin);
 		};

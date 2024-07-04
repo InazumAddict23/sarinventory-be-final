@@ -1,5 +1,6 @@
 package com.csthesis.sarinventory_be_final.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -35,6 +36,10 @@ public class Debtor {
     @JsonManagedReference
     private List<Debt> debts;
 
+    @ManyToOne (cascade = CascadeType.ALL)
+    @JoinColumn (name = "user_id")
+    private User user;
+
     @CreationTimestamp
     @JsonFormat(pattern = "MM-dd-yyyy")
     @Column(updatable = false, nullable = false, name = "date_updated")
@@ -47,6 +52,10 @@ public class Debtor {
 
     @Column (nullable = false)
     private Boolean deleted = Boolean.FALSE;
+
+    public Debtor() {
+
+    }
 
     public Debtor(Long id, String name, int total, List<Debt> debts, Date dateCreated, Date dateModified, Boolean deleted) {
         this.id = id;
@@ -112,6 +121,15 @@ public class Debtor {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @JsonBackReference
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public void addDebt(Debt debt) {

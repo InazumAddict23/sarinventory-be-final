@@ -1,5 +1,6 @@
 package com.csthesis.sarinventory_be_final.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,6 +30,10 @@ public class Supplier {
     @Column(name="phone_number", length = 11, nullable = false)
     private String phoneNumber;
 
+    @ManyToOne (cascade = CascadeType.ALL)
+    @JoinColumn (name = "user_id")
+    private User user;
+
     @CreationTimestamp
     @JsonFormat(pattern = "MM-dd-yyyy")
     @Column(updatable = false, nullable = false, name = "date_updated")
@@ -41,6 +46,10 @@ public class Supplier {
 
     @Column (nullable = false)
     private Boolean deleted = Boolean.FALSE;
+
+    public Supplier () {
+
+    }
 
     public Supplier(Long id, String name, String phoneNumber, Date dateCreated, Date dateModified, Boolean deleted) {
         this.id = id;
@@ -97,5 +106,14 @@ public class Supplier {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @JsonBackReference
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

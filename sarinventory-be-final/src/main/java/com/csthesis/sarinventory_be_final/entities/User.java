@@ -1,15 +1,18 @@
 package com.csthesis.sarinventory_be_final.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue (strategy = GenerationType.AUTO)
     @Column (name = "user_id")
@@ -28,16 +31,20 @@ public class User implements UserDetails {
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name="role_id")}
     )
+
+
     private Set<Role> authorities;
 
-    private String password;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user" ,cascade = CascadeType.ALL)
+    private List<Item> itemList;
 
-    public User(Long id, String username, Set<Role> authorities, String password) {
-        this.id = id;
-        this.username = username;
-        this.authorities = authorities;
-        this.password = password;
-    }
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user" ,cascade = CascadeType.ALL)
+    private List<Supplier> suppliers;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Debtor> debtors;
+
+    private String password;
 
     public User(Long id, String username, String phoneNo, String firstName, String lastName, String storeName, Set<Role> authorities, String password) {
         super();
@@ -49,6 +56,10 @@ public class User implements UserDetails {
         this.storeName = storeName;
         this.authorities = authorities;
         this.password = password;
+    }
+
+    public User () {
+
     }
 
     public Long getId() {
@@ -97,6 +108,33 @@ public class User implements UserDetails {
 
     public void setAuthorities(Set<Role> authorities) {
         this.authorities = authorities;
+    }
+
+    @JsonManagedReference
+    public List<Item> getItemList() {
+        return itemList;
+    }
+
+    public void setItemList(List<Item> itemList) {
+        this.itemList = itemList;
+    }
+
+    @JsonManagedReference
+    public List<Supplier> getSuppliers() {
+        return suppliers;
+    }
+
+    public void setSuppliers(List<Supplier> suppliers) {
+        this.suppliers = suppliers;
+    }
+
+    @JsonManagedReference
+    public List<Debtor> getDebtors() {
+        return debtors;
+    }
+
+    public void setDebtors(List<Debtor> debtors) {
+        this.debtors = debtors;
     }
 
     public void setPassword(String password) {

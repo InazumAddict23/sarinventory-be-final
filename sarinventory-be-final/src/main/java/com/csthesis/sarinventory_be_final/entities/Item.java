@@ -68,6 +68,7 @@
 // Item.java
 package com.csthesis.sarinventory_be_final.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -98,6 +99,10 @@ public class Item {
     @Column(name = "item_price", nullable = false)
     private double price;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @CreationTimestamp
     @JsonFormat(pattern = "MM-dd-yyyy")
     @Column(updatable = false, nullable = false, name = "date_updated")
@@ -114,6 +119,10 @@ public class Item {
 
     @Column(nullable = false)
     private Boolean deleted = Boolean.FALSE;
+
+    public Item() {
+
+    }
 
     public Item(Long id, String name, int stock, int sold, int added, double price, Date dateCreated, Date dateModified, Category category, Boolean deleted) {
         this.id = id;
@@ -206,5 +215,14 @@ public class Item {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @JsonBackReference
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

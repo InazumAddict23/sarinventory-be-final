@@ -2,16 +2,18 @@ package com.csthesis.sarinventory_be_final.controllers;
 
 import com.csthesis.sarinventory_be_final.entities.Item;
 import com.csthesis.sarinventory_be_final.services.ItemService;
+import com.csthesis.sarinventory_be_final.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/items")
+@RequestMapping("/user/api/items")
 public class ItemController {
 
     @Autowired
@@ -19,8 +21,8 @@ public class ItemController {
 
 
     @PostMapping
-    public Item createItem(@RequestBody Item item){
-        return itemService.saveItem(item);
+    public Item createItem(@RequestBody Item item, Authentication auth){
+        return itemService.saveItem(item, auth);
     };
 
 
@@ -43,8 +45,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public @ResponseBody List<Item> findAll() {
-        return itemService.findAll();
+    public @ResponseBody List<Item> findAll(Authentication auth) {
+        return itemService.findAllById(auth);
     }
 
     @GetMapping("/{id}")

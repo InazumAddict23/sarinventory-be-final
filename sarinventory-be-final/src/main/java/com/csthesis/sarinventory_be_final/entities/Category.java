@@ -32,6 +32,10 @@ public class Category {
     @JsonIgnore
     private List<Item> itemList;
 
+    public Category() {
+
+    }
+
     public Category(Long id, String name, Date dateCreated, List<Item> itemList) {
         this.id = id;
         this.name = name;

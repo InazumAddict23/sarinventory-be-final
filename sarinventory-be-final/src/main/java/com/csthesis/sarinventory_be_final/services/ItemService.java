@@ -1,16 +1,17 @@
 package com.csthesis.sarinventory_be_final.services;
 
 import com.csthesis.sarinventory_be_final.entities.Item;
+import com.csthesis.sarinventory_be_final.entities.User;
 import com.csthesis.sarinventory_be_final.repositories.CategoryRepository;
 import com.csthesis.sarinventory_be_final.repositories.ItemRepository;
+import com.csthesis.sarinventory_be_final.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.Filter;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,9 @@ public class ItemService {
 
     @Autowired
     private final ItemRepository itemRepo;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private final CategoryRepository categoryRepo;
@@ -38,14 +42,17 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public ItemService(ItemRepository itemRepo, CategoryRepository categoryRepo, EntityManager entityManager) {
+    public ItemService(ItemRepository itemRepo, CategoryRepository categoryRepo, EntityManager entityManager, UserRepository userRepository) {
 
         this.itemRepo = itemRepo;
         this.categoryRepo = categoryRepo;
         this.entityManager = entityManager;
+        this.userRepository = userRepository;
     }
 
-    public Item saveItem(Item item) {
+    public Item saveItem(Item item, Authentication auth) {
+        item.setUser((User) userRepository.findByUsername(auth.getName()).get());
+
         System.out.println("Item Added: " + item.getName() + " | " + item.getStock() + " units");
         return itemRepo.save(item);
     }
@@ -53,6 +60,11 @@ public class ItemService {
     public List<Item> findAll() {
 //        log.info("Item list booted up");
         return itemRepo.findAll(Sort.by(Sort.Direction.ASC, "name"));
+    }
+
+    public List<Item> findAllById(Authentication auth) {
+//        log.info("Item list booted up");
+        return itemRepo.findAllById(userRepository.findByUsername(auth.getName()).get().getId());
     }
 
     public Item findItemById(Long id) {

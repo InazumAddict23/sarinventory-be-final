@@ -56,11 +56,12 @@ public class AuthenticationService {
             );
 
             String jwt = jwtService.generateJwt(auth);
+
+            return new LoginDTO(userRepository.findByUsername(username).get(), jwt);
+
         } catch (AuthenticationException e) {
             return new LoginDTO(null, "");
         }
-
-        return null;
     }
 
 }
