@@ -23,7 +23,6 @@ public class Debt {
 
     @ManyToOne
     @JoinColumn(name = "debtor_id")
-    @JsonBackReference
     private Debtor debtor;
 
     @Column(name = "date", nullable = false)
@@ -39,6 +38,16 @@ public class Debt {
     @JsonFormat (pattern = "MM-dd-yyyy")
     @Column(name = "date_modified", nullable = false)
     private Date dateModified;
+
+    public Debt(Long id, int amount, Date date) {
+        this.id = id;
+        this.amount = amount;
+        this.date = date;
+    }
+
+    public Debt () {
+
+    }
 
     @Column (nullable = false)
     private Boolean isPaid = Boolean.FALSE;
@@ -59,6 +68,7 @@ public class Debt {
         this.amount = amount;
     }
 
+    @JsonBackReference
     public Debtor getDebtor() {
         return debtor;
     }

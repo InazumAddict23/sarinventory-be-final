@@ -33,7 +33,6 @@ public class Debtor {
     private int total = 0;
 
     @OneToMany(mappedBy = "debtor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     private List<Debt> debts;
 
     @ManyToOne (cascade = CascadeType.ALL)
@@ -57,14 +56,9 @@ public class Debtor {
 
     }
 
-    public Debtor(Long id, String name, int total, List<Debt> debts, Date dateCreated, Date dateModified, Boolean deleted) {
+    public Debtor(Long id, String name) {
         this.id = id;
         this.name = name;
-        this.total = total;
-        this.debts = debts;
-        this.dateCreated = dateCreated;
-        this.dateModified = dateModified;
-        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -91,6 +85,7 @@ public class Debtor {
         this.total = total;
     }
 
+    @JsonManagedReference
     public List<Debt> getDebts() {
         return debts;
     }

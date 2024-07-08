@@ -3,10 +3,14 @@ package com.csthesis.sarinventory_be_final.controllers;
 import com.csthesis.sarinventory_be_final.entities.Debt;
 import com.csthesis.sarinventory_be_final.entities.Debtor;
 import com.csthesis.sarinventory_be_final.services.DebtorService;
+import com.csthesis.sarinventory_be_final.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user/api/debtors")
@@ -15,10 +19,17 @@ public class DebtorController {
     @Autowired
     private DebtorService debtorService;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping
-    public ResponseEntity<Debtor> addDebtor(@RequestBody Debtor debtor) {
-        Debtor newDebtor = debtorService.addDebtor(debtor);
-        return new ResponseEntity<>(newDebtor, HttpStatus.CREATED);
+    public Debtor addDebtor(@RequestBody Debtor debtor, Authentication auth) {
+        return debtorService.addDebtor(debtor, auth);
+    }
+
+    @GetMapping
+    public @ResponseBody List<Debtor> findAllById (Authentication auth) {
+        return debtorService.findAllById(userService.loadUserByUsername(auth.getName()).getId());
     }
 
     @GetMapping("/{id}")

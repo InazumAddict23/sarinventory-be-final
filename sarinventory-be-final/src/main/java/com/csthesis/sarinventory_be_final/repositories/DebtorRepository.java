@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface DebtorRepository extends JpaRepository<Debtor, Long> {
-    List<Debtor> findAllById(Long id);
+    List<Debtor> findAllByUserId(Long user_id);
 }

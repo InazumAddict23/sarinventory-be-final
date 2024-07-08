@@ -27,5 +27,5 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findAllById(Long id);
+    List<Item> findAllByUserId(Long user_id);
 }

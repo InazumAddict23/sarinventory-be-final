@@ -6,13 +6,14 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.util.Date;
 
 @Entity
 @Table (name = "suppliers")
 @SQLDelete(sql = "UPDATE suppliers SET deleted = true WHERE id=?")
-//@Where(clause = "deleted = false")
+@Where(clause = "deleted = false")
 //@FilterDef(
 //        name = "deletedItemFilter",
 //        parameters = @ParamDef(name = "isDeleted", type = org.hibernate.type.descriptor.java.BooleanJavaType.class))

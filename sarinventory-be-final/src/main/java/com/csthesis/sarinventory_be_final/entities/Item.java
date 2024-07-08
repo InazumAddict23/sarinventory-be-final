@@ -72,12 +72,16 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "items")
+@SQLDelete(sql = "UPDATE items SET deleted = true WHERE id=?")
+@Where(clause = "deleted=false")
 public class Item {
 
     @Id

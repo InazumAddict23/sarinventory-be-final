@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -39,10 +41,17 @@ public class SupplierService {
 
     public Supplier saveSupplier(Supplier supplier, Authentication auth) {
 
+        if (supplier.getName() == null || supplier.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Supplier name cannot be empty / May laman dapat ang supplier name");
+        }
+
+        if (supplier.getPhoneNumber() == null || supplier.getPhoneNumber().trim().isEmpty()) {
+            throw new IllegalArgumentException("Supplier phone number should not be empty / May laman dapat ang supplier number");
+        }
+
         supplier.setUser((User) userRepo.findByUsername(auth.getName()).get());
         System.out.println("Supplier Added: " + supplier.getName() + " | " + supplier.getPhoneNumber());
 //        log.info("Supplier Added: " + supplier.getName() + " | " + supplier.getPhoneNumber());
-
         return supplierRepo.save(supplier);
     }
 
@@ -50,9 +59,9 @@ public class SupplierService {
         return supplierRepo.findAll();
     }
 
-    public List<Supplier> findAllById(Authentication auth) {
+    public List<Supplier> findAllById(Long id) {
 //        log.info("Item list booted up");
-        return supplierRepo.findAllById(userRepo.findByUsername(auth.getName()).get().getId());
+        return supplierRepo.findAllByUserId(id);
     }
 
     public List<Supplier> findAllFiltered(boolean isDeleted) {
@@ -71,21 +80,38 @@ public class SupplierService {
         return supplierRepo.findById(id).orElse(null);
     }
 
-    public Supplier updateSupplier(Long id, Supplier supplier) {
-        Supplier supplierToUpdate = supplierRepo.findById(id).orElseThrow(() -> new RuntimeException("Supplier does not exist"));
+    public Supplier updateSupplier(Long id, String newName, String newPhoneNo) {
+        Supplier supplierToUpdate = supplierRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Supplier does not exist"));
 
-        supplierToUpdate.setName(supplier.getName());
-        supplierToUpdate.setPhoneNumber(supplier.getPhoneNumber());
-        supplierToUpdate.setDateModified(supplier.getDateModified());
+        boolean updated = false;
 
-        System.out.println("Supplier Edited: " + supplier.getName() + " | " + supplier.getPhoneNumber());
+        if (newName != null && !newName.trim().isEmpty()) {
+            supplierToUpdate.setName(newName);
+            System.out.println("New Supplier Name:" + supplierToUpdate.getName());
+            updated = true;
+        }
+
+        if (newPhoneNo != null && !newPhoneNo.trim().isEmpty()) {
+            supplierToUpdate.setPhoneNumber(newPhoneNo);
+            System.out.println("New Phone Number: " + supplierToUpdate.getPhoneNumber());
+            updated = true;
+        }
+
+        if (updated) {
+            supplierToUpdate.setDateModified(new Date());
+        }
+
+        System.out.println("Supplier Edited: " + supplierToUpdate.getName() + " | " + supplierToUpdate.getPhoneNumber());
 //        log.info("Supplier Edited: " + supplier.getName() + " | " + supplier.getPhoneNumber());
 
         return supplierRepo.save(supplierToUpdate);
     }
 
     public void deleteSupplier(Long id) {
-        Supplier supplier = supplierRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
+        Supplier supplier = supplierRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Supplier not found"));
+
+        supplier.setUser(null);
         supplierRepo.deleteById(id);
 
         System.out.println("Supplier Deleted: " + supplier.getName() + " | " + supplier.getPhoneNumber());
