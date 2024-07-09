@@ -145,7 +145,7 @@ public class ItemController {
         }
     }
 
-    @GetMapping("/user/{userId}/top-selling/{period}")
+    @GetMapping("/top-selling/{period}")
     public List<Item> getTopSellingItemsByUserIdAndPeriod(
             Authentication auth,
             @PathVariable String period) {
@@ -155,13 +155,13 @@ public class ItemController {
         return itemService.getTopSellingItemsByUserIdAndDateRange(userId, startDate);
     }
 
-    @GetMapping("/user/{userId}/total-sold/{period}")
-    public int getTotalItemsSoldByUserIdAndPeriod(
+    @GetMapping("/sold/{period}")
+    public List<Item> getItemsSoldByUserIdAndPeriod(
             Authentication auth,
             @PathVariable String period) {
         Date startDate = getStartDateForPeriod(period);
-        Long userId = userService.loadUserByUsername(auth.getName()).getId();
-        return itemService.getTotalItemsSoldByUserIdAndDateRange(userId, startDate);
+        Long id = userService.loadUserByUsername(auth.getName()).getId();
+        return itemService.getItemsSoldByUserIdAndDateRange(id, startDate);
     }
 
     //testing = working
