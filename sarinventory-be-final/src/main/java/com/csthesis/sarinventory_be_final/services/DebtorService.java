@@ -5,6 +5,7 @@ import com.csthesis.sarinventory_be_final.entities.Debtor;
 import com.csthesis.sarinventory_be_final.entities.User;
 import com.csthesis.sarinventory_be_final.repositories.DebtorRepository;
 import com.csthesis.sarinventory_be_final.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -68,4 +69,16 @@ public class DebtorService {
         return debtor.getActiveDebts();
     }
 
+    public void deleteDebtor (Long id) {
+        Debtor debtor = debtorRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Debtor not found"));
+
+        if (debtor.getTotal() > 0) {
+            throw new IllegalArgumentException("You cannot delete someone with debt");
+        }
+
+        debtor.setUser(null);
+        debtorRepo.deleteById(id);
+
+        System.out.println(debtor.getName() + " deleted from inventory");
+    }
 }

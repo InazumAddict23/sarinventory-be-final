@@ -72,4 +72,9 @@ public class DebtorController {
         List<Debt> debts = debtorService.getActiveDebtsForDebtor(id);
         return ResponseEntity.ok(debts);
     }
+
+    @DeleteMapping ("/{id}")
+    public void deleteDebtor(@RequestParam Long id) {
+        debtorService.deleteDebtor(id);
+    }
 }
