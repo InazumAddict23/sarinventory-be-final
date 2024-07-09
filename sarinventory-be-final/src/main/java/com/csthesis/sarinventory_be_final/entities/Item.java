@@ -117,9 +117,8 @@ public class Item {
     @Column(name = "date_modified", nullable = false)
     private Date dateModified;
 
-    @Temporal(TemporalType.DATE)
     @JsonFormat(pattern = "MM-dd-yyyy")
-    @Column(name = "last_sale_date", nullable = false)
+    @Column(name = "last_sale_date")
     private Date lastSaleDate;
 
     @ManyToOne(cascade = CascadeType.MERGE)
