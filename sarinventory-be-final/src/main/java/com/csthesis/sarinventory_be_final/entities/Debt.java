@@ -10,23 +10,25 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Entity
-@Table(name = "debtors")
+@Table(name = "debts")
 @SQLDelete(sql = "UPDATE debts SET isPaid=true WHERE id=?")
 public class Debt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String description;
 
-    @Column(name = "debt_amount", nullable = false)
+    @Column (name = "debt_amount")
     private int amount;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "debtor_id")
     private Debtor debtor;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "date", nullable = false)
-    @JsonFormat(pattern = "MM-dd-yyyy MM:SS")
+    @JsonFormat(pattern = "MM-dd-yyyy HH:MM")
     private Date date;
 
     @CreationTimestamp
@@ -39,18 +41,22 @@ public class Debt {
     @Column(name = "date_modified", nullable = false)
     private Date dateModified;
 
-    public Debt(Long id, int amount, Date date) {
-        this.id = id;
-        this.amount = amount;
-        this.date = date;
-    }
+    @Column(nullable = false)
+    private Boolean deleted = Boolean.FALSE;
 
     public Debt () {
 
     }
 
-    @Column (nullable = false)
-    private Boolean isPaid = Boolean.FALSE;
+    public Debt(Long id, String description, int amount, Date date, Date dateCreated, Date dateModified, Boolean deleted) {
+        this.id = id;
+        this.description = description;
+        this.amount = amount;
+        this.date = date;
+        this.dateCreated = dateCreated;
+        this.dateModified = dateModified;
+        this.deleted = deleted;
+    }
 
     public Long getId() {
         return id;
@@ -58,6 +64,14 @@ public class Debt {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getAmount() {
@@ -101,11 +115,19 @@ public class Debt {
         this.dateModified = dateModified;
     }
 
-    public Boolean getPaid() {
-        return isPaid;
+    public Boolean getDeleted() {
+        return deleted;
     }
 
-    public void setPaid(Boolean paid) {
-        isPaid = paid;
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public void softDelete() {
+        this.deleted = true;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 }

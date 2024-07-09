@@ -8,8 +8,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "debtors")
@@ -30,10 +32,11 @@ public class Debtor {
 
     @Column (name = "debtor_name")
     private String name;
-    private int total = 0;
+    @Column (name = "total_debt")
+    private Integer total = 0;
 
     @OneToMany(mappedBy = "debtor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Debt> debts;
+    private List<Debt> debts = new ArrayList<>();
 
     @ManyToOne (cascade = CascadeType.ALL)
     @JoinColumn (name = "user_id")
@@ -56,9 +59,38 @@ public class Debtor {
 
     }
 
-    public Debtor(Long id, String name) {
+    public Debtor(Long id, String name, Integer total, Date dateCreated, Date dateModified, Boolean deleted) {
         this.id = id;
         this.name = name;
+        this.total = total;
+        this.dateCreated = dateCreated;
+        this.dateModified = dateModified;
+        this.deleted = deleted;
+    }
+
+    public void addDebt(Debt debt) {
+        debts.add(debt);
+        debt.setDebtor(this);
+        this.total += debt.getAmount();
+    }
+
+    public void removeDebt(Debt debt, boolean softDelete) {
+        if (softDelete) {
+            if (!debt.isDeleted()) {
+                debt.softDelete();
+                this.total -= debt.getAmount();
+            }
+        } else {
+            debts.remove(debt);
+            debt.setDebtor(null);
+            this.total -= debt.getAmount();
+        }
+    }
+
+    public List<Debt> getActiveDebts() {
+        return debts.stream()
+                .filter(debt -> !debt.isDeleted())
+                .collect(Collectors.toList());
     }
 
     public Long getId() {
@@ -77,11 +109,11 @@ public class Debtor {
         this.name = name;
     }
 
-    public int getTotal() {
+    public Integer getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(Integer total) {
         this.total = total;
     }
 
@@ -92,6 +124,15 @@ public class Debtor {
 
     public void setDebts(List<Debt> debts) {
         this.debts = debts;
+    }
+
+    @JsonBackReference
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Date getDateCreated() {
@@ -117,32 +158,4 @@ public class Debtor {
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
     }
-
-    @JsonBackReference
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void addDebt(Debt debt) {
-        this.debts.add(debt);
-        debt.setDebtor(this);
-        calculateTotalDebt();
-    }
-
-    public void removeDebt(Debt debt) {
-        this.debts.remove(debt);
-        debt.setDebtor(null);
-        calculateTotalDebt();
-    }
-
-    public void calculateTotalDebt() {
-        this.total = this.debts.stream().mapToInt(Debt::getAmount).sum();
-    }
-
-
-
 }
