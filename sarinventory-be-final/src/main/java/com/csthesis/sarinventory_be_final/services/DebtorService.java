@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,11 +25,11 @@ public class DebtorService {
     private UserRepository userRepo;
 
     @Transactional
-    public Debtor addDebtor(Debtor debtor, Authentication auth) {
+    public Debtor addDebtor(String name, Authentication auth) {
+        Debtor debtor = new Debtor();
+        debtor.setName(name);
         debtor.setUser((User) userRepo.findByUsername(auth.getName()).get());
-        // Calculate total debt before saving
 
-        debtor.calculateTotalDebt();
         return debtorRepo.save(debtor);
     }
 
@@ -41,28 +43,29 @@ public class DebtorService {
 
     @Transactional
     public Debtor addDebt(Long debtorId, Debt debt) {
-        Optional<Debtor> optionalDebtor = debtorRepo.findById(debtorId);
-        if (optionalDebtor.isPresent()) {
-            Debtor debtor = optionalDebtor.get();
-            debtor.addDebt(debt);
-            return debtorRepo.save(debtor);
-        }
-        return null;
+        Debtor debtor = debtorRepo.findById(debtorId)
+                .orElseThrow(() -> new RuntimeException("Debtor not found"));
+        debt.setDate(new Date());
+        debtor.addDebt(debt);
+        return debtorRepo.save(debtor);
     }
 
     @Transactional
-    public Debtor removeDebt(Long debtorId, Long debtId) {
-        Optional<Debtor> optionalDebtor = debtorRepo.findById(debtorId);
-        if (optionalDebtor.isPresent()) {
-            Debtor debtor = optionalDebtor.get();
-            Optional<Debt> optionalDebt = debtor.getDebts().stream().filter(d -> d.getId().equals(debtId)).findFirst();
-            if (optionalDebt.isPresent()) {
-                Debt debt = optionalDebt.get();
-                debtor.removeDebt(debt);
-                debtorRepo.save(debtor);
-            }
-            return debtor;
-        }
-        return null;
+    public Debtor removeDebt(Long debtorId, Long debtId, boolean softDelete) {
+        Debtor debtor = debtorRepo.findById(debtorId)
+                .orElseThrow(() -> new RuntimeException("Debtor not found"));
+        Debt debtToRemove = debtor.getDebts().stream()
+                .filter(debt -> debt.getId().equals(debtId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Debt not found"));
+        debtor.removeDebt(debtToRemove, softDelete);
+        return debtorRepo.save(debtor);
     }
+
+    public List<Debt> getActiveDebtsForDebtor(Long debtorId) {
+        Debtor debtor = debtorRepo.findById(debtorId)
+                .orElseThrow(() -> new RuntimeException("Debtor not found"));
+        return debtor.getActiveDebts();
+    }
+
 }
