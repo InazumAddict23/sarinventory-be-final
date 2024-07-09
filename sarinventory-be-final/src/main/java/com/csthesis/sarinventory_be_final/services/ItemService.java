@@ -206,12 +206,8 @@ public class ItemService {
         return itemRepo.findTopSellingItemsByUserIdAndDateRange(userId, startDate);
     }
 
-    public int getTotalItemsSoldByUserIdAndDateRange(Long userId, Date startDate) {
-        List<Item> items = itemRepo.findAllByUserId(userId);
-        return items.stream()
-                .filter(item -> item.getLastSaleDate() != null && item.getLastSaleDate().after(startDate))
-                .mapToInt(Item::getSold)
-                .sum();
+    public List<Item> getItemsSoldByUserIdAndDateRange(Long userId, Date startDate) {
+        return itemRepo.findItemsSoldByUserIdAndDateRange(userId, startDate);
     }
 
     public void deleteItem (Long id){

@@ -39,4 +39,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("SELECT i FROM Item i WHERE i.user.id = :userId AND i.lastSaleDate >= :startDate ORDER BY i.sold DESC")
     List<Item> findTopSellingItemsByUserIdAndDateRange(@Param("userId") Long user_id, @Param("startDate") Date startDate);
+
+    @Query("SELECT i FROM Item i WHERE i.user.id = :userId AND i.lastSaleDate >= :startDate")
+    List<Item> findItemsSoldByUserIdAndDateRange(@Param("userId") Long userId, @Param("startDate") Date startDate);
 }
