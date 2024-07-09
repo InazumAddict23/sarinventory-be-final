@@ -117,6 +117,11 @@ public class Item {
     @Column(name = "date_modified", nullable = false)
     private Date dateModified;
 
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "MM-dd-yyyy")
+    @Column(name = "last_sale_date", nullable = false)
+    private Date lastSaleDate;
+
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinTable(name = "category_item", joinColumns = {@JoinColumn(name = "item_id")}, inverseJoinColumns = {@JoinColumn(name="category_id")})
     private Category category;
@@ -128,7 +133,7 @@ public class Item {
 
     }
 
-    public Item(Long id, String name, int stock, int sold, int added, double price, Date dateCreated, Date dateModified, Category category, Boolean deleted) {
+    public Item(Long id, String name, int stock, int sold, int added, double price, Date dateCreated, Date dateModified, Date lastSaleDate, Category category, Boolean deleted) {
         this.id = id;
         this.name = name;
         this.stock = stock;
@@ -137,6 +142,7 @@ public class Item {
         this.price = price;
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
+        this.lastSaleDate = lastSaleDate;
         this.category = category;
         this.deleted = deleted;
     }
@@ -228,5 +234,13 @@ public class Item {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Date getLastSaleDate() {
+        return lastSaleDate;
+    }
+
+    public void setLastSaleDate(Date lastSaleDate) {
+        this.lastSaleDate = lastSaleDate;
     }
 }

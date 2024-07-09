@@ -3,6 +3,7 @@ package com.csthesis.sarinventory_be_final.controllers;
 import com.csthesis.sarinventory_be_final.entities.ErrorResponse;
 import com.csthesis.sarinventory_be_final.entities.Item;
 import com.csthesis.sarinventory_be_final.entities.User;
+import com.csthesis.sarinventory_be_final.repositories.UserRepository;
 import com.csthesis.sarinventory_be_final.services.ItemService;
 import com.csthesis.sarinventory_be_final.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,9 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -25,6 +27,9 @@ public class ItemController {
 
     @Autowired
     public UserService userService;
+
+    @Autowired
+    public UserRepository userRepo;
 
     @Autowired
     public ItemController(ItemService itemService) {
@@ -48,8 +53,9 @@ public class ItemController {
 
     //tested = working
     @GetMapping("/topselling")
-    public ResponseEntity<List<Item>> findTopSellingItems(@RequestParam(value = "limit", defaultValue = "5") Integer limit){
-        List<Item> topSellingItems = itemService.findTopSellingItems(limit);
+    public ResponseEntity<List<Item>> findTopSellingItems(Authentication auth, @RequestParam(value = "limit", defaultValue = "5") Integer limit){
+        Long id = userService.loadUserByUsername(auth.getName()).getId();
+        List<Item> topSellingItems = itemService.findTopSellingItems(id, limit);
         return new ResponseEntity<>(topSellingItems, HttpStatus.OK);
     }
 
@@ -139,9 +145,49 @@ public class ItemController {
         }
     }
 
+    @GetMapping("/user/{userId}/top-selling/{period}")
+    public List<Item> getTopSellingItemsByUserIdAndPeriod(
+            Authentication auth,
+            @PathVariable String period) {
+        Date startDate = getStartDateForPeriod(period);
+        Long userId = userService.loadUserByUsername(auth.getName()).getId();
+
+        return itemService.getTopSellingItemsByUserIdAndDateRange(userId, startDate);
+    }
+
+    @GetMapping("/user/{userId}/total-sold/{period}")
+    public int getTotalItemsSoldByUserIdAndPeriod(
+            Authentication auth,
+            @PathVariable String period) {
+        Date startDate = getStartDateForPeriod(period);
+        Long userId = userService.loadUserByUsername(auth.getName()).getId();
+        return itemService.getTotalItemsSoldByUserIdAndDateRange(userId, startDate);
+    }
+
     //testing = working
     @DeleteMapping ("/{id}")
     public void deleteItem (@PathVariable Long id) {
         itemService.deleteItem(id);
+    }
+
+    private Date getStartDateForPeriod(String period) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+
+        switch (period.toLowerCase()) {
+            case "daily":
+                cal.add(Calendar.DAY_OF_MONTH, -1);
+                break;
+            case "weekly":
+                cal.add(Calendar.WEEK_OF_YEAR, -1);
+                break;
+            case "monthly":
+                cal.add(Calendar.MONTH, -1);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid period. Use 'daily', 'weekly', or 'monthly'.");
+        }
+
+        return cal.getTime();
     }
 }

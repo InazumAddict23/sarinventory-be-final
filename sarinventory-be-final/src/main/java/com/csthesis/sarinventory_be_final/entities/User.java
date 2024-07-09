@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -36,13 +37,13 @@ public class User implements UserDetails {
     private Set<Role> authorities;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user" ,cascade = CascadeType.ALL)
-    private List<Item> itemList;
+    private List<Item> itemList = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user" ,cascade = CascadeType.ALL)
-    private List<Supplier> suppliers;
+    private List<Supplier> suppliers = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Debtor> debtors;
+    private List<Debtor> debtors = new ArrayList<>();
 
     private String password;
 

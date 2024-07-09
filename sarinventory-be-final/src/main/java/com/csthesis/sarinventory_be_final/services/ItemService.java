@@ -7,19 +7,19 @@ import com.csthesis.sarinventory_be_final.repositories.ItemRepository;
 import com.csthesis.sarinventory_be_final.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.crypto.Data;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.awt.print.Pageable;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,9 +39,11 @@ public class ItemService {
     @Autowired
     private final EntityManager entityManager;
 
-    public List<Item> findTopSellingItems(int limit) {
-        List<Item> allItems = itemRepo.findAll();
-        return allItems.stream()
+    private Map<Date, Map<Long, Integer>> dailySales = new HashMap<>();
+
+    public List<Item> findTopSellingItems(Long id, int limit) {
+        List<Item> allItemsById = itemRepo.findAllByUserId(id);
+        return allItemsById.stream()
                 .sorted((item1, item2) -> item2.getSold() - item1.getSold())
                 .limit(limit)
                 .collect(Collectors.toList());
@@ -170,10 +172,22 @@ public class ItemService {
 
         item.setStock(item.getStock() - amount);
         item.setSold(item.getSold() + amount);
+        item.setLastSaleDate(new Date());
 
         System.out.println(amount + " units subtracted to " + item.getName() + "\n" + " NEW STOCK AMOUNT: " + item.getStock());
         System.out.println(amount + " units sold of " + item.getName() + "\n" + " SOLD: " + item.getSold());
         return itemRepo.save(item);
+    }
+
+    private Optional<User> getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof User) {
+            username = ((User) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        return userRepository.findByUsername(username);
     }
 
     public List<Item> findAllFiltered(boolean isDeleted){
@@ -186,6 +200,18 @@ public class ItemService {
         session.disableFilter("deletedItemFilter");
 
         return items;
+    }
+
+    public List<Item> getTopSellingItemsByUserIdAndDateRange(Long userId, Date startDate) {
+        return itemRepo.findTopSellingItemsByUserIdAndDateRange(userId, startDate);
+    }
+
+    public int getTotalItemsSoldByUserIdAndDateRange(Long userId, Date startDate) {
+        List<Item> items = itemRepo.findAllByUserId(userId);
+        return items.stream()
+                .filter(item -> item.getLastSaleDate() != null && item.getLastSaleDate().after(startDate))
+                .mapToInt(Item::getSold)
+                .sum();
     }
 
     public void deleteItem (Long id){
