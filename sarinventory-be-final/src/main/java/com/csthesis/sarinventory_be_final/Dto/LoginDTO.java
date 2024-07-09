@@ -1,7 +1,9 @@
 package com.csthesis.sarinventory_be_final.Dto;
 
 import com.csthesis.sarinventory_be_final.entities.User;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+@JsonSerialize
 public class LoginDTO {
     private User user;
     private String jwt;

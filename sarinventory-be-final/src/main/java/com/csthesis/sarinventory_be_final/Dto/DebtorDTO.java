@@ -1,14 +1,23 @@
 package com.csthesis.sarinventory_be_final.Dto;
 
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize
-public class ItemDTO {
+public class DebtorDTO {
     private Long id;
     private String name;
-    private int stock;
-    private int price;
+    private Integer totalDebt;
+
+    // Constructor, getters, and setters
+
+    public DebtorDTO(Long id, String name, Integer totalDebt) {
+        this.id = id;
+        this.name = name;
+        this.totalDebt = totalDebt;
+    }
+
+    public DebtorDTO() {
+    }
 
     public Long getId() {
         return id;
@@ -26,19 +35,11 @@ public class ItemDTO {
         this.name = name;
     }
 
-    public int getStock() {
-        return stock;
+    public Integer getTotalDebt() {
+        return totalDebt;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
+    public void setTotalDebt(Integer totalDebt) {
+        this.totalDebt = totalDebt;
     }
 }
