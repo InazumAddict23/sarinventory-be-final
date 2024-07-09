@@ -1,5 +1,7 @@
 package com.csthesis.sarinventory_be_final.controllers;
 
+import com.csthesis.sarinventory_be_final.Dto.DebtDTO;
+import com.csthesis.sarinventory_be_final.Dto.DebtorDTO;
 import com.csthesis.sarinventory_be_final.entities.Debt;
 import com.csthesis.sarinventory_be_final.entities.Debtor;
 import com.csthesis.sarinventory_be_final.services.DebtorService;
@@ -11,42 +13,63 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user/api/debtors")
 public class DebtorController {
 
     @Autowired
-    private DebtorService debtorService;
+    public DebtorService debtorService;
 
     @Autowired
-    private UserService userService;
+    public UserService userService;
 
-    @PostMapping
-    public Debtor addDebtor(@RequestBody Debtor debtor, Authentication auth) {
-        return debtorService.addDebtor(debtor, auth);
+    public DebtorController(DebtorService debtorService) {
+        this.debtorService = debtorService;
     }
 
+    //tested = working
+    @PostMapping
+    public ResponseEntity<Debtor> addDebtor(@RequestParam String name, Authentication auth) {
+        return ResponseEntity.ok(debtorService.addDebtor(name, auth));
+    }
+
+    //tested = working
     @GetMapping
     public @ResponseBody List<Debtor> findAllById (Authentication auth) {
         return debtorService.findAllById(userService.loadUserByUsername(auth.getName()).getId());
     }
 
+    //tested = working
     @GetMapping("/{id}")
-    public ResponseEntity<Debtor> getDebtor(@PathVariable Long id) {
+    public ResponseEntity<DebtorDTO> getDebtor(@PathVariable Long id) {
         Debtor debtor = debtorService.getDebtor(id);
-        return debtor != null ? ResponseEntity.ok(debtor) : ResponseEntity.notFound().build();
+        DebtorDTO debtorDTO = new DebtorDTO(debtor.getId(), debtor.getName(), debtor.getTotal());
+        return ResponseEntity.ok(debtorDTO);
     }
 
-    @PostMapping("/{debtorId}/debts")
-    public ResponseEntity<Debtor> addDebt(@PathVariable Long debtorId, @RequestBody Debt debt) {
-        Debtor updatedDebtor = debtorService.addDebt(debtorId, debt);
-        return updatedDebtor != null ? ResponseEntity.ok(updatedDebtor) : ResponseEntity.notFound().build();
+    //tested = working
+    @PostMapping("/{id}/debts")
+    public ResponseEntity<Debtor> addDebt(@PathVariable Long id, @RequestBody Debt debt) {
+        return ResponseEntity.ok(debtorService.addDebt(id, debt));
     }
 
+    //tested = working
     @DeleteMapping("/{debtorId}/debts/{debtId}")
-    public ResponseEntity<Debtor> removeDebt(@PathVariable Long debtorId, @PathVariable Long debtId) {
-        Debtor updatedDebtor = debtorService.removeDebt(debtorId, debtId);
-        return updatedDebtor != null ? ResponseEntity.ok(updatedDebtor) : ResponseEntity.notFound().build();
+    public ResponseEntity<DebtorDTO> removeDebt(
+            @PathVariable Long debtorId,
+            @PathVariable Long debtId,
+            @RequestParam(defaultValue = "true") boolean softDelete) {
+        Debtor updatedDebtor = debtorService.removeDebt(debtorId, debtId, softDelete);
+        DebtorDTO debtorDTO = new DebtorDTO(updatedDebtor.getId(), updatedDebtor.getName(), updatedDebtor.getTotal());
+        return ResponseEntity.ok(debtorDTO);
+    }
+
+    //tested = working
+    @GetMapping("/{id}/debts")
+    public ResponseEntity<List<Debt>> getActiveDebtsForDebtor(@PathVariable Long id) {
+        List<Debt> debts = debtorService.getActiveDebtsForDebtor(id);
+        return ResponseEntity.ok(debts);
     }
 }
