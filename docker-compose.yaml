@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  api_service:
+    build: .
+    restart: always
+    ports:
+      - 8000:8000
+    networks:
+      - springapimysql-net
+    environment:
+      - spring.datasource.url=jdbc:mysql://localhost:3306/sarinventory
+    depends_on:
+      - mysqldb
+
+    volumes:
+      - .m2:/root/.m2
+
+  mysqldb:
+    image: "mysql:8.0"
+    restart: always
+    ports:
+      - 3306:3306
+    networks:
+      - springapimysql-net
+    environment:
+      MYSQL_DATABASE: sarinventory
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Password1
+      MYSQL_ROOT_PASSWORD: Password1
+networks:
+  springapimysql-net:
