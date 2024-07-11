@@ -101,7 +101,7 @@ public class Item {
     private int added;
 
     @Column(name = "item_price", nullable = false)
-    private double price;
+    private int price;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
@@ -132,7 +132,7 @@ public class Item {
 
     }
 
-    public Item(Long id, String name, int stock, int sold, int added, double price, Date dateCreated, Date dateModified, Date lastSaleDate, Category category, Boolean deleted) {
+    public Item(Long id, String name, int stock, int sold, int added, int price, Date dateCreated, Date dateModified, Date lastSaleDate, Category category, Boolean deleted) {
         this.id = id;
         this.name = name;
         this.stock = stock;
@@ -190,7 +190,7 @@ public class Item {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
