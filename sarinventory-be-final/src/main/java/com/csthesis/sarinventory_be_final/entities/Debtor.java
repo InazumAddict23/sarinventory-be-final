@@ -30,13 +30,14 @@ public class Debtor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column (name = "debtor_name")
+    @Column (name = "debtor_name", unique = true)
     private String name;
+
     @Column (name = "total_debt")
     private Integer total = 0;
 
     @OneToMany(mappedBy = "debtor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Debt> debts = new ArrayList<>();
+    public List<Debt> debts = new ArrayList<>();
 
     @ManyToOne (cascade = CascadeType.ALL)
     @JoinColumn (name = "user_id")
