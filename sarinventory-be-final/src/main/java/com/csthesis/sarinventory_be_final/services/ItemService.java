@@ -210,6 +210,32 @@ public class ItemService {
         return itemRepo.findItemsSoldByUserIdAndDateRange(userId, startDate);
     }
 
+    public List<Item> findAllByUserIdIncludingDeleted(Long userId) {
+        return itemRepo.findAllByUserIdIncludingDeleted(userId);
+    }
+
+    @Transactional
+    public Item undeleteItem(Long id, Long userId) {
+        Item item = itemRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Item not found"));
+
+        if (!item.getDeleted()) {
+            throw new IllegalStateException("Item is not deleted");
+        }
+
+        if (!item.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("You don't have permission to undelete this item");
+        }
+
+        item.setDeleted(false);
+        item.setDateModified(new Date());
+        return itemRepo.save(item);
+    }
+
+    public List<Item> findAllByIdIncludingDeleted(Long userId) {
+        return itemRepo.findAllByUserIdIncludingDeleted(userId);
+    }
+
     public void deleteItem (Long id){
         Item item = itemRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Item not found"));
 

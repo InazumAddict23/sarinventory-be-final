@@ -39,8 +39,14 @@ public class ItemController {
 
     //tested = working
     @PostMapping
-    public Item createItem(@RequestBody Item item, Authentication auth){
-        return itemService.saveItem(item, auth);
+    public ResponseEntity<?> createItem(@RequestBody Item item, Authentication auth){
+        try {
+            item = itemService.saveItem(item, auth);
+            return new ResponseEntity<>(item, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(400, e.getMessage()));
+        }
     };
 
 
@@ -74,8 +80,8 @@ public class ItemController {
     //tested = working
     @PutMapping("/{id}")
     public ResponseEntity<?> updateItem (@PathVariable Long id,
-                            @RequestParam (required = false) String name,
-                            @RequestParam (required = false) Integer price) {
+                                         @RequestParam (required = false) String name,
+                                         @RequestParam (required = false) Integer price) {
         try {
             Item itemToUpdate = itemService.updateItem(id, name, price);
             return ResponseEntity.ok(itemToUpdate);
@@ -189,5 +195,31 @@ public class ItemController {
         }
 
         return cal.getTime();
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Item>> findAllIncludingDeleted(Authentication auth) {
+        Long userId = userService.loadUserByUsername(auth.getName()).getId();
+        List<Item> items = itemService.findAllByUserIdIncludingDeleted(userId);
+        return ResponseEntity.ok(items);
+    }
+
+
+    @PutMapping("/undelete/{id}")
+    public ResponseEntity<?> undeleteItem(@PathVariable Long id, Authentication auth) {
+        try {
+            Long userId = userService.loadUserByUsername(auth.getName()).getId();
+            Item undeletedItem = itemService.undeleteItem(id, userId);
+            return ResponseEntity.ok(undeletedItem);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(404, e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(400, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ErrorResponse(500, "Error undeleting item: " + e.getMessage()));
+        }
     }
 }

@@ -71,17 +71,17 @@ package com.csthesis.sarinventory_be_final.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.Where;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.*;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "items")
 @SQLDelete(sql = "UPDATE items SET deleted = true WHERE id=?")
-@Where(clause = "deleted=false")
+@FilterDef(name = "deletedProductFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
+@Filter(name = "deletedProductFilter", condition = "deleted = :isDeleted")
 public class Item {
 
     @Id
@@ -127,6 +127,7 @@ public class Item {
 
     @Column(nullable = false)
     private Boolean deleted = Boolean.FALSE;
+
 
     public Item() {
 
